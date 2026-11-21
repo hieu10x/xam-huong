@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#6e0d0a">
+  <meta name="description" content="Xăm Hường — trò đổ xăm hường dân gian xứ Huế, chơi nhiều người trên một màn hình.">
+  <title>Xăm Hường</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='22' fill='%23fff'/%3E%3Cg fill='%23c4170f'%3E%3Ccircle cx='30' cy='30' r='11'/%3E%3Ccircle cx='70' cy='30' r='11'/%3E%3Ccircle cx='30' cy='70' r='11'/%3E%3Ccircle cx='70' cy='70' r='11'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,600;1,700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap&text=%E7%8B%80%E5%85%83%E6%A6%9C%E7%9C%BC%E6%8E%A2%E8%8A%B1%E6%9C%83%E9%80%B2%E5%A3%AB%E8%88%89%E4%BA%BA%E7%A7%80%E6%89%8D%E4%B8%80%E4%BA%8C%E4%B8%89%E5%9B%9B%E5%85%AB%E5%8D%81%E5%85%AD%E6%B3%A8%E5%A3%BD%E7%A6%8F%E7%B4%85">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="defs"></div>
+  <div class="backdrop" aria-hidden="true">
+    <div class="ngomon-wrap" id="ngomon"></div>
+    <div class="lantern-wrap l1" data-lantern></div>
+    <div class="lantern-wrap l2" data-lantern></div>
+    <div id="petals"></div>
+  </div>
+
+  <!-- ===== Màn hình bắt đầu ===== -->
+  <section id="setup" class="screen active">
+    <div class="setup-inner">
+      <div class="mai-wrap" id="maiBranch"></div>
+      <header class="setup-title">
+        <div class="seal">紅</div>
+        <h1>Xăm Hường</h1>
+        <p>Thú đổ xăm hường tao nhã chốn Cố đô Huế</p>
+      </header>
+
+      <div class="panel setup-card">
+        <div class="setup-cols">
+          <div>
+            <h2>Các cửa</h2>
+            <p class="muted small">Ít nhất 6 cửa, nhiều nhất 12. Ít người thì một người chơi nhiều cửa.</p>
+            <ul id="playerList" class="player-edit"></ul>
+            <button class="btn ghost" id="addPlayer" type="button">+ Thêm cửa</button>
+            <p class="ban-info" id="banTrangInfo"></p>
+          </div>
+          <div>
+            <h2>Cách chơi</h2>
+            <div class="field">
+              <span class="label">Kết thúc ván</span>
+              <div class="seg" id="endMode">
+                <button type="button" data-v="0">Khi hết thẻ</button>
+                <button type="button" data-v="10">10 vòng</button>
+                <button type="button" data-v="20">20 vòng</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="optPrice">Giá mỗi điểm</label>
+              <div class="price"><input type="number" id="optPrice" min="0" step="500" inputmode="numeric"><span>đồng</span></div>
+              <small class="muted">Cuối ván, cửa dư điểm bán cho cửa thiếu. Để 0 nếu chỉ tính điểm.</small>
+            </div>
+            <label class="toggle"><input type="checkbox" id="optQuyDoi"><span></span>
+              <div><b>Quy đổi khi hết thẻ</b><small>Hết loại thẻ được thưởng thì lấy thẻ nhỏ hơn có tổng điểm tương đương</small></div></label>
+            <label class="toggle"><input type="checkbox" id="optSound"><span></span>
+              <div><b>Âm thanh</b><small>Tiếng hột lăn trong tô sứ, trống chiêng khi đoạt Trạng</small></div></label>
+          </div>
+        </div>
+        <div class="setup-actions">
+          <button class="btn ghost" type="button" data-open="rules">Luật chơi</button>
+          <button class="btn ghost" type="button" id="resumeBtn" hidden>Tiếp tục ván cũ</button>
+          <button class="btn primary big" type="button" id="startBtn">Vào cuộc</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Bàn chơi ===== -->
+  <section id="game" class="screen">
+    <header class="topbar">
+      <div class="brand"><span class="seal small">紅</span><span>Xăm Hường</span></div>
+      <div class="round" id="roundInfo"></div>
+      <nav class="tools">
+        <button class="icon-btn" type="button" id="undoBtn" title="Hoàn tác lượt vừa rồi"><span data-icon="undo"></span><em>Hoàn tác</em></button>
+        <button class="icon-btn" type="button" data-open="rules" title="Luật chơi"><span data-icon="book"></span><em>Luật</em></button>
+        <button class="icon-btn" type="button" id="soundBtn" title="Bật/tắt âm thanh"><span data-icon="bell"></span><em>Âm thanh</em></button>
+        <button class="icon-btn" type="button" id="fsBtn" title="Toàn màn hình"><span data-icon="full"></span><em>Toàn màn hình</em></button>
+        <button class="icon-btn" type="button" id="menuBtn" title="Kết thúc / ván mới"><span data-icon="menu"></span><em>Ván</em></button>
+      </nav>
+    </header>
+
+    <main class="table">
+      <section class="panel pool" aria-label="Hộp thẻ">
+        <h3>Hộp thẻ <small id="poolLeft"></small></h3>
+        <div class="box" id="pool"></div>
+      </section>
+
+      <section class="center">
+        <div class="turn" id="turnBanner"></div>
+        <div class="bowl-area">
+          <button class="bowl" id="bowl" type="button" aria-label="Đổ hột">
+            <div class="bowl-art" id="bowlArt"></div>
+            <div class="dice" id="dice"></div>
+          </button>
+          <div class="tap-hint" id="tapHint">Chạm vào tô để đổ hột</div>
+        </div>
+        <div class="roll-row">
+          <button class="btn primary big" type="button" id="rollBtn">Đổ hột</button>
+          <button class="btn ghost" type="button" id="manualBtn" title="Dùng hột thật, nhập kết quả">Nhập hột thật</button>
+        </div>
+        <div class="auto-row" id="autoRow" hidden>
+          <span class="auto-dot"></span><div><b>Đang đổ tự động</b><small id="autoLeft"></small></div>
+          <button class="btn ghost" type="button" id="autoStop">Dừng</button>
+          <button class="btn ghost" type="button" id="autoSkip">Xem kết quả ngay</button>
+        </div>
+        <div class="result" id="result" aria-live="polite"></div>
+      </section>
+
+      <section class="panel players" aria-label="Người chơi">
+        <h3>Các cửa</h3>
+        <ol id="players"></ol>
+        <div class="trang-box" id="trangBox"></div>
+      </section>
+    </main>
+
+    <footer class="log" id="log" aria-label="Lịch sử"></footer>
+  </section>
+
+  <!-- ===== Hộp thoại ===== -->
+  <div class="modal" id="rules" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="sheet panel">
+      <button class="close" type="button" data-close>×</button>
+      <h2 id="rulesTitle">Luật đổ xăm hường</h2>
+      <div class="rules-body" id="rulesBody"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="manual" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+    <div class="sheet panel narrow">
+      <button class="close" type="button" data-close>×</button>
+      <h2 id="manualTitle">Nhập kết quả hột thật</h2>
+      <p class="muted">Chạm vào từng hột để đổi mặt cho khớp với hột trong tô.</p>
+      <div class="manual-dice" id="manualDice"></div>
+      <p class="manual-preview" id="manualPreview"></p>
+      <div class="setup-actions"><button class="btn primary big" type="button" id="manualOk">Ghi nhận</button></div>
+    </div>
+  </div>
+
+  <div class="modal celebrate" id="event" role="dialog" aria-modal="true">
+    <div class="rays"></div>
+    <div class="event-card" id="eventCard"></div>
+  </div>
+
+  <div class="modal" id="menu" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <div class="sheet panel narrow">
+      <button class="close" type="button" data-close>×</button>
+      <h2 id="menuTitle">Ván chơi</h2>
+      <div class="menu-actions">
+        <button class="btn primary" type="button" id="endNowBtn">Đổ tự động đến hết ván</button>
+        <button class="btn ghost" type="button" id="skipBtn">Đổ nhanh, xem kết quả ngay</button>
+        <button class="btn ghost" type="button" id="restartBtn">Chơi lại từ đầu (cùng người chơi)</button>
+        <button class="btn ghost" type="button" id="homeBtn">Về màn hình chính</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="end" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <div class="sheet panel">
+      <h2 id="endTitle">Kết thúc ván</h2>
+      <div id="endBody"></div>
+      <div class="setup-actions">
+        <button class="btn ghost" type="button" id="endHome">Màn hình chính</button>
+        <button class="btn ghost" type="button" id="endView">Xem lại bàn</button>
+        <button class="btn primary big" type="button" id="endAgain">Chơi ván mới</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/rules.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
