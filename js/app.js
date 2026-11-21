@@ -41,12 +41,18 @@
     {
       players: DEFAULT_NAMES.slice(0, MIN).map((name, i) => ({ name, avatar: AVATARS[i % AVATARS.length] })),
       maxRounds: 0,
-      quyDoi: false,
+      quyDoi: true,
+      capChinhHoi: false,
       price: 1000,
       sound: true,
     },
     saved.cfg || {}
   );
+  // Cài đặt cũ (trước khi quy đổi bật sẵn): chuyển sang mặc định mới một lần.
+  if (!cfg.v) {
+    cfg.quyDoi = true;
+    cfg.v = 2;
+  }
   // Ván lưu từ phiên bản luật cũ thì bỏ.
   const okState = (s) => s && s.v === 2;
   let state = okState(saved.state) ? saved.state : null;
@@ -161,6 +167,7 @@
     $$('#endMode button').forEach((b) => b.classList.toggle('on', +b.dataset.v === cfg.maxRounds));
     $('#optPrice').value = cfg.price;
     $('#optQuyDoi').checked = cfg.quyDoi;
+    $('#optCapChinh').checked = cfg.capChinhHoi;
     $('#optSound').checked = cfg.sound;
     $('#resumeBtn').hidden = !(state && !state.over);
   }
@@ -176,6 +183,7 @@
     persist();
   });
   $('#optQuyDoi').addEventListener('change', (e) => ((cfg.quyDoi = e.target.checked), persist()));
+  $('#optCapChinh').addEventListener('change', (e) => ((cfg.capChinhHoi = e.target.checked), persist()));
   $('#optSound').addEventListener('change', (e) => {
     cfg.sound = e.target.checked;
     S.setEnabled(cfg.sound);
@@ -193,7 +201,7 @@
     cfg.players.forEach((p, i) => {
       p.name = (p.name || '').trim() || 'Cửa ' + (i + 1);
     });
-    state = R.newGame(cfg.players, { maxRounds: cfg.maxRounds, quyDoi: cfg.quyDoi });
+    state = R.newGame(cfg.players, { maxRounds: cfg.maxRounds, quyDoi: cfg.quyDoi, capChinhHoi: cfg.capChinhHoi });
     history = [];
     lastResult = null;
     persist();
@@ -761,10 +769,10 @@
       ['Tứ tự', [3, 3, 3, 3, 1, 6], 'Bốn mặt giống nhau (không phải tứ)', 'Tiến sĩ (4)'],
       ['Tứ tự nhất hường', [5, 5, 5, 5, 4, 1], 'Tứ tự kèm một mặt tứ', 'Tiến sĩ + Tú tài'],
       ['Tứ tự nhị hường', [6, 6, 6, 6, 4, 4], 'Tứ tự kèm hai mặt tứ', 'Tiến sĩ + Cử nhân'],
-      ['Tứ tự cáp xiên', [5, 5, 5, 5, 2, 3], 'Hai mặt còn lại cộng bằng mặt tứ tự', 'Trạng em (16)'],
-      ['Tứ tự cáp chính', [6, 6, 6, 6, 3, 3], 'Hai mặt còn lại là một đôi, cộng bằng mặt tứ tự', 'Trạng em + Hội nguyên'],
-      ['Phân song', [2, 2, 2, 6, 6, 6], 'Hai bộ ba', 'Trạng em'],
-      ['Phân song tam hường', [4, 4, 4, 1, 1, 1], 'Hai bộ ba, một bộ là mặt tứ', 'Trạng em + Hội nguyên'],
+      ['Tứ tự cáp xiên', [5, 5, 5, 5, 2, 3], 'Hai mặt còn lại khác nhau, cộng bằng mặt tứ tự', 'Trạng em (16)'],
+      ['Tứ tự cáp chính', [6, 6, 6, 6, 3, 3], 'Hai mặt còn lại là một đôi, cộng bằng mặt tứ tự', 'Trạng em (16); nếu bật tuỳ chọn thì thêm Hội nguyên'],
+      ['Phân song', [1, 1, 1, 6, 6, 6], 'Hai bộ ba đối mặt nhau (cộng bằng 7): nhất–lục, nhị–ngũ', 'Trạng em'],
+      ['Phân song tam hường', [3, 3, 3, 4, 4, 4], 'Ba mặt tam và ba mặt tứ', 'Trạng em + Hội nguyên'],
       ['Thượng mã', [4, 4, 5, 5, 6, 6], 'Đôi tứ, đôi ngũ, đôi lục', 'Trạng em'],
       ['Hạ mã', [1, 1, 2, 2, 3, 3], 'Đôi nhất, đôi nhị, đôi tam', 'Trạng em'],
       ['Lục thuận', [1, 2, 3, 4, 5, 6], 'Đủ sáu mặt', 'Trạng em'],
@@ -790,6 +798,7 @@
       <p class="muted">Bảng nhãn và Thám hoa gọi chung là <i>trạng em</i>; Trạng nguyên là <i>trạng anh</i>.</p>
       <h3>Tổ hợp hột</h3>
       <table class="rtable"><thead><tr><th>Tên</th><th>Cách ra</th><th>Được</th></tr></thead><tbody>${combos}</tbody></table>
+      <p class="muted">Tứ tự mà hai mặt còn lại vừa thành cáp vừa có mặt tứ (như lục lục lục lục, nhị, tứ) thì tính cáp, được trạng em. Hai bộ ba không đối mặt nhau (như nhất–tam) thì không phải phân song; nếu có ba mặt tứ thì chỉ tính tam hường.</p>
       <h3>Giật trạng</h3>
       <p>Trạng có <b>tuổi</b> và chia hai hệ, <b>không giật qua lại</b> giữa hai hệ:</p>
       <ul class="rank">
@@ -804,7 +813,7 @@
       <p>Hết ván (hết thẻ trong hộp, hoặc đủ số vòng đã chọn), mỗi cửa phải đủ <b>32 điểm</b>: dư thì bán, thiếu thì mua, giá mỗi điểm thoả thuận trước khi chơi. Bộ thẻ chỉ đủ cho 6 cửa, nên mỗi cửa thêm thì <b>bán trạng</b> thêm một bậc — mỗi bậc cộng đúng 32 điểm:</p>
       <table class="rtable"><thead><tr><th>Số cửa</th><th>Bậc</th><th>Điểm thẻ</th><th>Tổng</th></tr></thead><tbody>${banRows}</tbody></table>
       <h3>Hết thẻ</h3>
-      <p>Ra tổ hợp mà loại thẻ đó đã hết thì không được gì, trừ khi bật <i>Quy đổi khi hết thẻ</i>. Muốn xong nhanh thì vào mục <b>Ván</b> chọn <i>Đổ tự động đến hết ván</i>: máy đổ ngẫu nhiên lần lượt cho từng cửa đến khi hết thẻ, bấm <b>Dừng</b> lúc nào cũng được.</p>
+      <p>Ra tổ hợp mà loại thẻ đó đã hết thì lấy các thẻ nhỏ hơn có tổng điểm tương đương (<i>Quy đổi khi hết thẻ</i>, bật sẵn). Tắt tuỳ chọn này thì không được gì. Muốn xong nhanh thì vào mục <b>Ván</b> chọn <i>Đổ tự động đến hết ván</i>: máy đổ ngẫu nhiên lần lượt cho từng cửa đến khi hết thẻ, bấm <b>Dừng</b> lúc nào cũng được.</p>
       <p class="muted">Luật theo lệ chơi xăm hường Huế, đối chiếu với bài của Trần Đức Anh Sơn và Lê Duy Đoàn. Bấm <b>Hoàn tác</b> nếu ai lỡ đổ nhầm lượt.</p>`;
   }
   $$('[data-open="rules"]').forEach((b) => b.addEventListener('click', renderRules));

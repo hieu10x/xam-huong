@@ -20,12 +20,22 @@ test('nhận diện tổ hợp', () => {
     [[4, 4, 4, 1, 2, 6], 'tam_huong', ['hoi']],
     [NOTHING, 'khong', []],
     [[3, 3, 3, 3, 1, 6], 'tu_tu', ['tien']],
-    [[5, 5, 5, 5, 4, 1], 'tu_tu_nhat_huong', ['tien', 'tu']],
+    [[5, 5, 5, 5, 4, 2], 'tu_tu_nhat_huong', ['tien', 'tu']],
+    [[5, 5, 5, 5, 4, 1], 'tu_tu_cap_xien', ['bt']],
     [[6, 6, 6, 6, 4, 4], 'tu_tu_nhi_huong', ['tien', 'cu']],
     [[5, 5, 5, 5, 2, 3], 'tu_tu_cap_xien', ['bt']],
-    [[6, 6, 6, 6, 3, 3], 'tu_tu_cap_chinh', ['bt', 'hoi']],
-    [[2, 2, 2, 6, 6, 6], 'phan_song', ['bt']],
-    [[4, 4, 4, 1, 1, 1], 'phan_song_tam_huong', ['bt', 'hoi']],
+    [[6, 6, 6, 6, 3, 3], 'tu_tu_cap_chinh', ['bt']],
+    [[2, 2, 2, 2, 1, 1], 'tu_tu_cap_chinh', ['bt']],
+    [[3, 3, 3, 3, 1, 2], 'tu_tu_cap_xien', ['bt']],
+    [[6, 6, 6, 6, 2, 4], 'tu_tu_cap_xien', ['bt']],
+    [[6, 6, 6, 6, 1, 2], 'tu_tu', ['tien']],
+    [[2, 2, 2, 2, 6, 6], 'tu_tu', ['tien']],
+    [[1, 1, 1, 6, 6, 6], 'phan_song', ['bt']],
+    [[2, 2, 2, 5, 5, 5], 'phan_song', ['bt']],
+    [[3, 3, 3, 4, 4, 4], 'phan_song_tam_huong', ['bt', 'hoi']],
+    [[1, 1, 1, 3, 3, 3], 'khong', []],
+    [[2, 2, 2, 6, 6, 6], 'khong', []],
+    [[4, 4, 4, 1, 1, 1], 'tam_huong', ['hoi']],
     [[4, 5, 6, 4, 5, 6], 'thuong_ma', ['bt']],
     [[1, 2, 3, 1, 2, 3], 'ha_ma', ['bt']],
     [[6, 5, 4, 3, 2, 1], 'luc_thuan', ['bt']],
@@ -209,4 +219,16 @@ test('mô phỏng nhiều ván: thẻ luôn được bảo toàn', () => {
       if (st.trang) assert.equal(st.players[st.trang.holder].sticks.trang, 1);
     }
   }
+});
+
+test('tuỳ chọn: tứ tự cáp chính thêm hội nguyên (mặc định tắt); quy đổi mặc định bật', () => {
+  const d = [6, 6, 6, 6, 3, 3];
+  assert.deepEqual(R.classify(d).awards, ['bt']);
+  assert.deepEqual(R.classify(d, { capChinhHoi: true }).awards, ['bt', 'hoi']);
+  assert.deepEqual(R.classify([5, 5, 5, 5, 2, 3], { capChinhHoi: true }).awards, ['bt']);
+  const st = R.newGame(six);
+  assert.equal(st.options.quyDoi, true);
+  assert.equal(st.options.capChinhHoi, false);
+  const on = R.applyRoll(R.newGame(six, { capChinhHoi: true }), d).state;
+  assert.equal(on.players[0].sticks.hoi, 1);
 });

@@ -56,7 +56,9 @@ Luật dựa theo bài [Về Huế đổ xăm hường](https://anhsontranduc.wo
 | 11 | Bán tam hường: Hội nguyên ×2 | 352 |
 | 12 | Hội nguyên ×3 | 384 |
 
-**Hết thẻ.** Ra tổ hợp mà loại thẻ đó đã hết thì không được gì. Nếu bật *Quy đổi khi hết thẻ* thì lấy các thẻ nhỏ hơn có tổng điểm tương đương. Ván kết thúc khi hộp hết thẻ hoặc sau số vòng đã chọn. Muốn xong nhanh thì vào mục **Ván** chọn *Đổ tự động đến hết ván* (bấm Dừng lúc nào cũng được), hoặc *Đổ nhanh, xem kết quả ngay*.
+**Hết thẻ.** Ra tổ hợp mà loại thẻ đó đã hết thì lấy các thẻ nhỏ hơn có tổng điểm tương đương (*Quy đổi khi hết thẻ*, bật sẵn). Tắt tuỳ chọn thì không được gì.
+
+**Tứ tự cáp.** Cáp chính hay cáp xiên đều chỉ được trạng em. Có tuỳ chọn *Tứ tự cáp chính thêm Hội nguyên* cho nhà nào chơi theo lệ đó (tắt sẵn). Ván kết thúc khi hộp hết thẻ hoặc sau số vòng đã chọn. Muốn xong nhanh thì vào mục **Ván** chọn *Đổ tự động đến hết ván* (bấm Dừng lúc nào cũng được), hoặc *Đổ nhanh, xem kết quả ngay*.
 
 ## Cấu trúc
 

@@ -25,7 +25,8 @@
   const LUC_PHU = { huong: 64, den: 32 }; // mỗi cửa chung cho người đổ được lục phú
 
   const DEFAULT_OPTIONS = {
-    quyDoi: false, // hết loại thẻ được thưởng thì lấy các thẻ nhỏ hơn có tổng điểm tương đương
+    quyDoi: true, // hết loại thẻ được thưởng thì lấy các thẻ nhỏ hơn có tổng điểm tương đương
+    capChinhHoi: false, // tứ tự cáp chính được thêm Hội nguyên (luật nhà: chỉ trạng em)
     maxRounds: 0, // 0 = chơi đến khi hết thẻ
   };
 
@@ -52,7 +53,7 @@
   /* ---------- Nhận diện tổ hợp ----------
    * award: 'trang' | 'bt' (Bảng nhãn hoặc Thám hoa) | id thẻ thường
    * trang: { sys: 'huong'|'den', tier: 1|2, age, ageLabel } — thông tin tranh Trạng */
-  function classify(dice) {
+  function classify(dice, opts) {
     if (!Array.isArray(dice) || dice.length !== 6 || dice.some((v) => !(v >= 1 && v <= 6)))
       throw new Error('Cần đúng 6 hột, mỗi hột từ 1 đến 6');
     const c = [0, 0, 0, 0, 0, 0, 0];
@@ -106,20 +107,22 @@
       if (k === 4 || c[k] !== 4) continue;
       const rest = dice.filter((v) => v !== k).sort((x, y) => x - y);
       const fours = rest.filter((v) => v === 4).length;
+      const [a, b] = rest;
+      // Cáp: hai mặt còn lại cộng bằng mặt tứ tự. Cáp chính hay cáp xiên đều chỉ được trạng em.
+      if (a + b === k)
+        return a === b
+          ? R('tu_tu_cap_chinh', 'Tứ tự cáp chính', `Bốn mặt ${FACE[k]}, kèm đôi ${FACE[a]}`, opts && opts.capChinhHoi ? ['bt', 'hoi'] : ['bt'])
+          : R('tu_tu_cap_xien', 'Tứ tự cáp xiên', `Bốn mặt ${FACE[k]}, kèm ${FACE[a]} và ${FACE[b]}`, ['bt']);
       if (fours === 2) return R('tu_tu_nhi_huong', 'Tứ tự nhị hường', `Bốn mặt ${FACE[k]}, kèm hai mặt tứ`, ['tien', 'cu']);
       if (fours === 1) return R('tu_tu_nhat_huong', 'Tứ tự nhất hường', `Bốn mặt ${FACE[k]}, kèm một mặt tứ`, ['tien', 'tu']);
-      const [a, b] = rest;
-      if (a === b && (a * 2 === k || (k === 2 && a === 6)))
-        return R('tu_tu_cap_chinh', 'Tứ tự cáp chính', `Bốn mặt ${FACE[k]}, kèm đôi ${FACE[a]}`, ['bt', 'hoi']);
-      if (a !== b && (a + b === k || (k === 1 && a === 5 && b === 6)))
-        return R('tu_tu_cap_xien', 'Tứ tự cáp xiên', `Bốn mặt ${FACE[k]}, kèm ${FACE[a]} và ${FACE[b]}`, ['bt']);
       return R('tu_tu', 'Tứ tự', `Bốn mặt ${FACE[k]} giống nhau`, ['tien']);
     }
 
     const triples = [];
     for (let k = 1; k <= 6; k++) if (c[k] === 3) triples.push(k);
-    if (triples.length === 2) {
-      if (n4 === 3) return R('phan_song_tam_huong', 'Phân song tam hường', `Ba mặt tứ và ba mặt ${FACE[triples.find((k) => k !== 4)]}`, ['bt', 'hoi']);
+    // Phân song: hai bộ ba là hai mặt đối nhau trên hột (cộng bằng 7): nhất–lục, nhị–ngũ, tam–tứ.
+    if (triples.length === 2 && triples[0] + triples[1] === 7) {
+      if (n4 === 3) return R('phan_song_tam_huong', 'Phân song tam hường', 'Ba mặt tam và ba mặt tứ', ['bt', 'hoi']);
       return R('phan_song', 'Phân song', `Ba mặt ${FACE[triples[0]]} và ba mặt ${FACE[triples[1]]}`, ['bt']);
     }
     if (c[4] === 2 && c[5] === 2 && c[6] === 2) return R('thuong_ma', 'Thượng mã', 'Đôi tứ, đôi ngũ, đôi lục', ['bt']);
@@ -204,7 +207,7 @@
     const st = clone(state);
     const p = st.current;
     const me = st.players[p];
-    const combo = classify(dice);
+    const combo = classify(dice, st.options);
     const gained = []; // { id, from: null|playerIndex, why }
     const notes = [];
     const events = []; // 'trang_new' | 'trang_steal' | 'trang_up' | 'tamkhoi' | 'lucphu'
