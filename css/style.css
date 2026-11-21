@@ -55,15 +55,15 @@ button:disabled { cursor: default; opacity: .45; }
 body:has(#game.active) .lantern-wrap { display: none; }
 @keyframes sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 
-#petals { position: absolute; inset: 0; }
+#petals { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
 .petal { position: absolute; top: -6vh; animation: fall linear infinite; opacity: .75; }
 .petal.burst { animation-iteration-count: 1; opacity: 1; z-index: 60; }
 @keyframes fall {
   0% { transform: translate(0, 0) rotate(0); }
   100% { transform: translate(var(--drift), 112vh) rotate(540deg); }
 }
-body:has(.modal.celebrate.open) #petals, body:has(#end.open) #petals { z-index: 60; }
-body:has(.modal.celebrate.open) .backdrop, body:has(#end.open) .backdrop { z-index: 70; }
+/* Chỉ hoa rơi bay lên trên hộp thoại; nền kinh thành luôn nằm dưới cùng. */
+body:has(.modal.celebrate.open) #petals, body:has(#end.open) #petals { z-index: 70; }
 
 /* ---------- Khung sơn son thếp vàng ---------- */
 .panel {
@@ -497,3 +497,10 @@ body:has(.modal.celebrate.open) .backdrop, body:has(#end.open) .backdrop { z-ind
 }
 /* Thẻ bay to hơn một chút cho dễ nhìn. */
 .flyer svg { height: 150px; width: auto; }
+/* Màn kết thúc: bảng cuộn bên trong, hàng nút luôn nằm trong khung. */
+#end .sheet { display: flex; flex-direction: column; overflow: hidden; }
+#endBody { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-right: -.6rem; padding-right: .6rem; }
+#end .setup-actions { flex: none; margin-top: 1rem; }
+/* Cửa sổ Luật: nội dung cuộn bên trong, tiêu đề và nút đóng luôn ở trên. */
+#rules .sheet { display: flex; flex-direction: column; overflow: hidden; }
+#rulesBody { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-right: -.6rem; padding-right: .6rem; }
