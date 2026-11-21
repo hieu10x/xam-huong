@@ -487,3 +487,13 @@ body:has(.modal.celebrate.open) .backdrop, body:has(#end.open) .backdrop { z-ind
 .toast.out { opacity: 0; transform: translate(-50%, -1rem); }
 @keyframes toastin { from { opacity: 0; transform: translate(-50%, -1rem); } }
 @media (prefers-reduced-motion: reduce) { .auto-dot { animation: none; } }
+
+/* Màn hình ngang: giữ ô kết quả và hàng nút cố định chiều cao để tô không xê dịch. */
+@media (min-aspect-ratio: 1/1) {
+  .result { flex: none; height: clamp(9.5rem, 22vh, 230px); min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .result .r-notes { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .roll-row, .auto-row { flex: none; height: 4.4rem; box-sizing: border-box; }
+  .auto-row { height: 4rem; margin: .2rem 0; }
+}
+/* Thẻ bay to hơn một chút cho dễ nhìn. */
+.flyer svg { height: 150px; width: auto; }

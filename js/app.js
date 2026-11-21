@@ -565,7 +565,7 @@
       f.style.top = sr.top + sr.height / 2 + 'px';
       document.body.appendChild(f);
       setTimeout(() => {
-        f.style.transform = `translate(${tr.left + tr.width / 2 - (sr.left + sr.width / 2)}px, ${tr.top + tr.height / 2 - (sr.top + sr.height / 2)}px) translate(-50%,-50%) scale(.35) rotate(${k % 2 ? 25 : -25}deg)`;
+        f.style.transform = `translate(${tr.left + tr.width / 2 - (sr.left + sr.width / 2)}px, ${tr.top + tr.height / 2 - (sr.top + sr.height / 2)}px) translate(-50%,-50%) scale(.5) rotate(${k % 2 ? 25 : -25}deg)`;
         f.style.opacity = '0.2';
       }, 30 + k * 70);
       setTimeout(() => f.remove(), 1100 + k * 70);
